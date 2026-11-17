@@ -1,613 +1,676 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teknik Destek - Barkod Etiket Sistemi</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #3498db;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-        
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-        
-        .form-section, .preview-section {
-            flex: 1;
-            min-width: 300px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            padding: 25px;
-        }
-        
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        .section-title i {
-            color: #3498db;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
-        }
-        
-        input, textarea, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-print {
-            background-color: #27ae60;
-        }
-        
-        .btn-print:hover {
-            background-color: #219653;
-        }
-        
-        .btn-download {
-            background-color: #9b59b6;
-        }
-        
-        .btn-download:hover {
-            background-color: #8e44ad;
-        }
-        
-        .btn-reset {
-            background-color: #e67e22;
-        }
-        
-        .btn-reset:hover {
-            background-color: #d35400;
-        }
-        
-        .buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        /* ETİKET ÖNİZLEME - YENİ TASARIM */
-        .label-preview {
-            width: 400px;
-            height: 400px;
-            background-color: white;
-            padding: 0;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px;
-            line-height: 1.3;
-            margin: 0 auto;
-            position: relative;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        .label-content {
-            width: 100%;
-            height: 100%;
-            padding: 5px 8px;
-            white-space: pre-line;
-            word-wrap: break-word;
-            font-weight: 500;
-        }
-        
-        .label-info {
-            text-align: center;
-            margin-top: 15px;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        .zpl-output {
-            width: 100%;
-            height: 200px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-top: 20px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
-        /* YAZDIRMA ALANI - GİZLİ */
-        #printArea {
-            display: none;
-        }
-        
-        /* YAZDIRMA ETİKETİ STİLİ - YENİ TASARIM */
-        .print-label {
-            width: 400px !important;
-            height: 400px !important;
-            padding: 5px 8px !important;
-            font-family: 'Courier New', Courier, monospace !important;
-            font-size: 16px !important;
-            line-height: 1.3 !important;
-            background: white !important;
-            border: none !important;
-            box-sizing: border-box !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            color: black !important;
-            text-align: left !important;
-            position: relative !important;
-            font-weight: 500 !important;
-        }
-        
-        /* YAZDIRMA AYARLARI */
-        @media print {
-            body * {
-                display: none !important;
-                visibility: hidden !important;
-                height: 0 !important;
-                width: 0 !important;
-                overflow: hidden !important;
-            }
-            
-            #printArea,
-            #printArea * {
-                display: block !important;
-                visibility: visible !important;
-                height: auto !important;
-                width: auto !important;
-                overflow: visible !important;
-            }
-            
-            #printArea {
-                display: block !important;
-                visibility: visible !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: white !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-            
-            .print-label {
-                display: block !important;
-                visibility: visible !important;
-                margin: 0 !important;
-                padding: 5px 8px !important;
-                width: 400px !important;
-                height: 400px !important;
-                border: none !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teknik Destek · Servis Etiketi — makerpazar</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Roboto+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#533DA1; --brand-2:#6B53C9; --brand-soft:#EEEAFB; --brand-ink:#2E2160;
+    --ink:#1E1B2E; --ink-2:#4A4660; --mute:#8A86A0; --line:#E3E0EE;
+    --bg:#F5F3FA; --card:#FFFFFF; --ok:#1F9D6B; --warn:#D9822B; --danger:#D64545;
+    --radius:14px; --shadow:0 1px 2px rgba(30,27,46,.05),0 8px 24px -8px rgba(30,27,46,.12);
+    --f-head:'Poppins',system-ui,sans-serif; --f-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --f-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+    --f-label:'Roboto Condensed','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{
+    font-family:var(--f-body);color:var(--ink);line-height:1.5;min-height:100vh;
+    background-image:radial-gradient(circle at 1px 1px,rgba(83,61,161,.09) 1px,transparent 0);
+    background-size:22px 22px;
+  }
 
-                page-break-before: avoid !important;
-                page-break-after: avoid !important;
-            }
-            
-            @page {
-                margin: 0 !important;
-                padding: 0 !important;
-                size: auto !important;
-                margin-top: 0mm !important;
-                margin-bottom: 0mm !important;
-                margin-left: 0mm !important;
-                margin-right: 0mm !important;
-            }
-            
-            body {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: white !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-            }
-            
-            html {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: white !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .label-preview {
-                width: 350px;
-                height: 350px;
-                font-size: 14px;
-            }
-        }
+  /* ---------- Üst bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{max-width:1240px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:18px}
+  .brand-logo{height:34px;display:block}
+  .topbar .divider{width:1px;height:28px;background:var(--line)}
+  .topbar h1{font-family:var(--f-head);font-size:1rem;font-weight:600;color:var(--ink)}
+  .topbar .sub{font-size:.8rem;color:var(--mute)}
+  .chip{
+    margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
+    background:var(--brand-soft);color:var(--brand);font-size:.78rem;font-weight:600;white-space:nowrap
+  }
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(31,157,107,.18)}
 
-        .info-box {
-            background-color: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 20px;
-        }
+  main{max-width:1240px;margin:0 auto;padding:28px 24px 40px;display:grid;grid-template-columns:minmax(340px,1fr) minmax(420px,1.15fr);gap:24px;align-items:start}
 
-        .info-box h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-head{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+  .card-head .num{
+    width:26px;height:26px;border-radius:8px;background:var(--brand);color:#fff;font-family:var(--f-head);
+    font-size:.8rem;font-weight:600;display:grid;place-items:center;flex:none
+  }
+  .card-head h2{font-family:var(--f-head);font-size:1rem;font-weight:600}
+  .card-head .hint{margin-left:auto;font-size:.78rem;color:var(--mute)}
+  .card-body{padding:22px}
 
-        .info-box ul {
-            margin-left: 20px;
-            color: #34495e;
-        }
-    </style>
+  /* ---------- Form ---------- */
+  .field{margin-bottom:16px}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;font-size:.8rem;font-weight:600;color:var(--ink-2);margin-bottom:6px;letter-spacing:.01em}
+  .field label .count{font-weight:500;color:var(--mute);font-family:var(--f-mono);font-size:.72rem}
+  .field label .count.over{color:var(--warn)}
+  .input-wrap{position:relative;display:flex;align-items:center}
+  .input-wrap svg.ico{position:absolute;left:13px;width:17px;height:17px;color:var(--mute);pointer-events:none}
+  input[type=text],input[type=tel],input[type=email],input[type=number],select{
+    width:100%;padding:11px 14px 11px 40px;border:1px solid var(--line);border-radius:10px;background:#FBFAFE;
+    font:500 .95rem var(--f-body);color:var(--ink);transition:border-color .15s,box-shadow .15s,background .15s
+  }
+  input.mono{font-family:var(--f-mono);font-size:.9rem;letter-spacing:.02em}
+  input:focus,select:focus{outline:none;border-color:var(--brand-2);background:#fff;box-shadow:0 0 0 4px rgba(107,83,201,.14)}
+  input::placeholder{color:#B4B0C6;font-weight:400}
+  .input-wrap .inline-btn{
+    position:absolute;right:6px;padding:6px 10px;border:0;border-radius:7px;background:var(--brand-soft);color:var(--brand);
+    font:600 .74rem var(--f-body);cursor:pointer
+  }
+  .input-wrap .inline-btn:hover{background:#E2DCF8}
+  .input-wrap input.has-btn{padding-right:86px}
+  .warn-text{display:none;margin-top:6px;font-size:.75rem;color:var(--warn)}
+  .warn-text.show{display:block}
+
+  .settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px;border:1px dashed #D5CFEA;border-radius:12px;background:#FCFBFF;margin:6px 0 18px}
+  .settings .field{margin:0}
+  .settings select,.settings input{padding-left:12px}
+  .switch{display:flex;align-items:center;gap:10px;height:44px;cursor:pointer;user-select:none;font-size:.88rem;font-weight:500;color:var(--ink-2)}
+  .switch input{display:none}
+  .switch .track{width:38px;height:22px;border-radius:99px;background:#D8D4E6;position:relative;transition:background .15s;flex:none}
+  .switch .track::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .15s}
+  .switch input:checked + .track{background:var(--brand)}
+  .switch input:checked + .track::after{transform:translateX(16px)}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:10px;border:1px solid transparent;
+    font:600 .9rem var(--f-body);cursor:pointer;transition:transform .08s,background .15s,border-color .15s,box-shadow .15s
+  }
+  .btn svg{width:17px;height:17px}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 16px -6px rgba(83,61,161,.6)}
+  .btn-primary:hover{background:var(--brand-ink)}
+  .btn-print{grid-column:1/-1;padding:15px;font-size:1rem;background:var(--ink);color:#fff}
+  .btn-print:hover{background:#000}
+  .btn-print kbd{font:500 .7rem var(--f-mono);padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.14);margin-left:6px}
+  .btn-ghost{background:#fff;color:var(--ink-2);border-color:var(--line)}
+  .btn-ghost:hover{border-color:#CFC9E3;background:#FAF9FD}
+  .btn-ghost.danger:hover{color:var(--danger);border-color:#F1CACA;background:#FFF7F7}
+
+  .tips{margin-top:18px;padding:14px 16px;border-radius:12px;background:var(--brand-soft);color:var(--brand-ink);font-size:.82rem}
+  .tips b{font-family:var(--f-head);font-weight:600;display:block;margin-bottom:6px}
+  .tips ul{padding-left:18px;display:grid;gap:3px}
+
+  /* ---------- Önizleme sahnesi ---------- */
+  .stage{
+    position:relative;border-radius:12px;padding:38px 20px 30px;display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(160deg,#2A2440,#18152A);overflow:hidden
+  }
+  .stage::before{ /* yazıcı ağzı */
+    content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:min(420px,86%);height:10px;border-radius:6px;
+    background:#0C0A16;box-shadow:inset 0 2px 3px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.06)
+  }
+  .stage .dims{margin-top:16px;display:flex;gap:14px;font:500 .72rem var(--f-mono);color:#A9A2C8}
+  .stage .dims span{display:inline-flex;align-items:center;gap:6px}
+  .stage .dims i{width:6px;height:6px;border-radius:50%;background:#7E6BE0;display:inline-block}
+
+  /* ---------- ETİKET (nokta birimli: 320 × 320 nokta = 40 × 40 mm @203dpi) ---------- */
+  .label{
+    --u:1.2px;
+    position:relative;width:calc(320 * var(--u));height:calc(320 * var(--u));background:#fff;color:#000;
+    border-radius:calc(8 * var(--u));overflow:hidden;font-family:var(--f-label);font-weight:700;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact
+  }
+  .stage .label{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 22px 40px -12px rgba(0,0,0,.65);animation:feed .35s ease-out}
+  @keyframes feed{from{transform:translateY(-6px);opacity:.6}to{transform:none;opacity:1}}
+  .label > *{position:absolute;left:calc(12 * var(--u));width:calc(296 * var(--u));white-space:nowrap;overflow:hidden}
+  .label .l-logo{left:auto;width:auto;display:block;image-rendering:pixelated}
+  .label .l-band{background:#000;color:#fff;text-align:center;letter-spacing:.08em}
+  .label .l-txt{line-height:1.05}
+  .label .l-bar{left:auto;width:auto;overflow:visible;shape-rendering:crispEdges}
+  .label .l-id{text-align:center;line-height:1;letter-spacing:.04em}
+  .label .l-empty{color:#9a9a9a}
+
+  /* ---------- ZPL paneli ---------- */
+  .zpl-head{display:flex;align-items:center;gap:10px;margin:22px 0 10px}
+  .zpl-head h3{font-family:var(--f-head);font-size:.92rem;font-weight:600}
+  .zpl-head .meta{font:500 .72rem var(--f-mono);color:var(--mute)}
+  .zpl-head .tools{margin-left:auto;display:flex;gap:8px}
+  .zpl-head .btn{padding:8px 12px;font-size:.8rem}
+  .zpl-output{
+    background:#15121F;color:#D9D4EE;border-radius:12px;padding:16px 18px;max-height:260px;overflow:auto;
+    font:400 .8rem/1.65 var(--f-mono);white-space:pre-wrap;word-break:break-all
+  }
+  .zpl-output .c{color:#A592FF;font-weight:600}
+  .zpl-output .g{color:#6E6890;font-style:italic}
+  .zpl-output .d{color:#F2C46D}
+
+  footer{max-width:1240px;margin:0 auto;padding:10px 24px 30px;display:flex;justify-content:space-between;font-size:.78rem;color:var(--mute)}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:50;
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:.86rem;font-weight:500;
+    box-shadow:0 12px 30px -8px rgba(0,0,0,.4);transition:all .22s ease
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  #printArea{display:none}
+
+  @media (max-width:980px){
+    main{grid-template-columns:1fr}
+    .label{--u:1px}
+  }
+  @media (max-width:520px){
+    .settings{grid-template-columns:1fr}
+    .topbar .sub,.topbar .divider,.chip{display:none}
+    .topbar h1{font-size:.9rem}
+    .card-head .hint{display:none}
+    .label{--u:.9px}
+  }
+
+  /* ---------- YAZDIRMA: yalnızca 40 × 40 mm etiket ---------- */
+  @page{size:40mm 40mm;margin:0}
+  @media print{
+    html,body{background:#fff !important;background-image:none !important;margin:0 !important;padding:0 !important}
+    body > *:not(#printArea){display:none !important}
+    #printArea{display:block !important}
+    #printArea .label{--u:calc(40mm / 320);border-radius:0;box-shadow:none;animation:none;page-break-after:always;break-after:page}
+    #printArea .label:last-child{page-break-after:auto;break-after:auto}
+    .label .l-empty{color:#000}
+  }
+</style>
 </head>
 <body>
-    <header>
-        <h1>Teknik Destek - Barkod Etiket Sistemi</h1>
-        <p class="subtitle">Servis Etiketleri - 4x4 cm (Zebra Yazıcı Uyumlu)</p>
-    </header>
-    
-    <div class="container">
-        <section class="form-section">
-            <h2 class="section-title">Müşteri & Servis Bilgileri</h2>
-            <form id="labelForm">
-                <div class="form-group">
-                    <label for="customerName">İsim Soyisim</label>
-                    <input type="text" id="customerName" placeholder="Örn: Ahmet Yılmaz" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phoneNumber">Telefon</label>
-                    <input type="tel" id="phoneNumber" placeholder="Örn: 0532 123 45 67" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">E-posta</label>
-                    <input type="email" id="email" placeholder="Örn: ahmet@firma.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="serialNumber">Seri Numarası</label>
-                    <input type="text" id="serialNumber" placeholder="Örn: SN123456789" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="serviceId">Servis ID</label>
-                    <input type="text" id="serviceId" placeholder="Örn: SRV2025001" required>
-                </div>
-                
-                <div class="buttons">
-                    <button type="button" id="generateBtn" class="btn">
-                        Etiketi Oluştur
-                    </button>
-                    <button type="button" id="resetBtn" class="btn btn-reset">
-                        Temizle
-                    </button>
-                </div>
-                
-                <div class="buttons">
-                    <button type="button" id="printBtn" class="btn btn-print">
-                        Yazdır
-                    </button>
-                    <button type="button" id="downloadBtn" class="btn btn-download">
-                        ZPL İndir
-                    </button>
-                </div>
-            </form>
-            
-            <div class="info-box">
-                <h4>📌 Kullanım Bilgisi</h4>
-                <ul>
-                    <li>Bilgileri girdikten sonra "Etiketi Oluştur" butonuna tıklayın</li>
-                    <li>"Yazdır" butonu ile Zebra yazıcınızdan 4x4 cm etiket basın</li>
-                    <li>"ZPL İndir" ile barkod kodunu bilgisayarınıza kaydedin</li>
-                    <li>Servis ID otomatik barkod olarak oluşturulur</li>
-                </ul>
-            </div>
-        </section>
-        
-        <section class="preview-section">
-            <h2 class="section-title">Etiket Önizleme (4x4 cm)</h2>
-            
-            <div class="label-preview" id="labelPreview">
-                <div class="label-content" id="labelContent">
-                    TEKNİK DESTEK
-                    İsim Soyisim: 
-                    Telefon: 
-                    E-posta: 
-                    Seri No: 
-                    Servis ID: 
-                    
-                    *SERVISID*
-                    
-                    Lütfen bilgileri girip
-                    "Etiketi Oluştur" butonuna tıklayın.
-                </div>
-            </div>
-            <p class="label-info">4x4 cm etiket önizlemesi (barkod: Servis ID)</p>
-            
-            <h3 class="section-title">ZPL Kodu (Zebra Yazıcı)</h3>
-            <div class="zpl-output" id="zplOutput">
-                ^XA
-                ^LL160
-                ^FO20,10^A0N,20,25^FDİsim Soyisim: ^FS
-                ^FO20,35^A0N,16,20^FDTelefon: ^FS
-                ^FO20,55^A0N,16,20^FDE-posta: ^FS
-                ^FO20,75^A0N,16,20^FDSeri No: ^FS
-                ^FO20,100^A0N,20,25^FDServis ID: ^FS
-                ^FO20,125^B3N,N,35,Y,N^FD^FS
-                ^XZ
-                
-                Lütfen bilgileri girip "Etiketi Oluştur" butonuna tıklayın.
-            </div>
-        </section>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <img class="brand-logo" alt="makerpazar" src="data:image/png;base64,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">
+    <span class="divider"></span>
+    <div>
+      <h1>Teknik Destek · Servis Etiketi</h1>
+      <div class="sub">4 × 4 cm termal etiket · Zebra ZPL</div>
     </div>
-    
-    <!-- YAZDIRMA ALANI - GİZLİ -->
-    <div id="printArea">
-        <div class="print-label" id="printLabelContent">
-            <!-- Buraya yazdırma içeriği eklenecek -->
+    <span class="chip"><span class="dot"></span><span id="chipText">203 dpi · 320 × 320 nokta</span></span>
+  </div>
+</header>
+
+<main>
+  <!-- ============ FORM ============ -->
+  <section class="card">
+    <div class="card-head"><span class="num">1</span><h2>Müşteri &amp; Servis Bilgileri</h2><span class="hint">Yazdıkça güncellenir</span></div>
+    <div class="card-body">
+      <form id="labelForm" autocomplete="off" onsubmit="return false">
+        <div class="field">
+          <label for="customerName">İsim Soyisim <span class="count" data-for="customerName"></span></label>
+          <div class="input-wrap">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+            <input type="text" id="customerName" placeholder="Örn: Ahmet Yılmaz" required>
+          </div>
         </div>
+        <div class="field">
+          <label for="phoneNumber">Telefon <span class="count" data-for="phoneNumber"></span></label>
+          <div class="input-wrap">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>
+            <input type="tel" id="phoneNumber" placeholder="Örn: 0532 123 45 67" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">E-posta <span class="count" data-for="email"></span></label>
+          <div class="input-wrap">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input type="email" id="email" placeholder="Örn: ahmet@firma.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="serialNumber">Seri Numarası <span class="count" data-for="serialNumber"></span></label>
+          <div class="input-wrap">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7V5h3M17 5h3v2M20 17v2h-3M7 19H4v-2M8 9v6M11 9v6M14 9v6M17 9v6"/></svg>
+            <input type="text" id="serialNumber" class="mono" placeholder="Örn: SN123456789" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="serviceId">Servis ID <span style="font-weight:500;color:var(--mute)">— barkod olarak basılır</span></label>
+          <div class="input-wrap">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
+            <input type="text" id="serviceId" class="mono has-btn" placeholder="Örn: SRV2025001" required>
+            <button type="button" class="inline-btn" id="newIdBtn" title="Sıradaki Servis ID'yi üret">+ Yeni ID</button>
+          </div>
+          <div class="warn-text" id="idWarn"></div>
+        </div>
+
+        <div class="settings">
+          <div class="field">
+            <label for="dpi">Yazıcı çözünürlüğü</label>
+            <select id="dpi">
+              <option value="203">203 dpi</option>
+              <option value="300">300 dpi</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="copies">Kopya</label>
+            <input type="number" id="copies" min="1" max="99" value="1">
+          </div>
+          <div class="field">
+            <label>Logo</label>
+            <label class="switch"><input type="checkbox" id="showLogo" checked><span class="track"></span>Bas</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="printBtn" class="btn btn-print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg>
+            Yazdır <kbd>Ctrl + Enter</kbd>
+          </button>
+          <button type="button" id="generateBtn" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
+            Etiketi Oluştur
+          </button>
+          <button type="button" id="resetBtn" class="btn btn-ghost danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+            Temizle
+          </button>
+        </div>
+      </form>
+
+      <div class="tips">
+        <b>Kullanım</b>
+        <ul>
+          <li>Bilgiler yazdıkça etiket önizlemesi ve ZPL kodu anında güncellenir.</li>
+          <li><b style="display:inline;font-family:inherit">Yazdır</b> tarayıcıdan 40 × 40 mm sayfa olarak basar; yazıcı sürücüsünde kağıt boyutunu 4 × 4 cm seçin, ölçek %100.</li>
+          <li><b style="display:inline;font-family:inherit">ZPL İndir</b> dosyası doğrudan Zebra'ya gönderilebilir (logo dahil, Türkçe karakter desteği ^CI28).</li>
+          <li>Servis ID, Code 128 barkod olarak basılır; okuyucu ile okutulabilir.</li>
+        </ul>
+      </div>
     </div>
-    
-    <footer>
-        <p>Teknik Destek - Zebra Barkod Etiket Sistemi | 4x4 cm</p>
-    </footer>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const generateBtn = document.getElementById('generateBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const printBtn = document.getElementById('printBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-            const labelContent = document.getElementById('labelContent');
-            const zplOutput = document.getElementById('zplOutput');
-            const printLabelContent = document.getElementById('printLabelContent');
-            
-            // Input elementleri
-            const customerNameInput = document.getElementById('customerName');
-            const phoneNumberInput = document.getElementById('phoneNumber');
-            const emailInput = document.getElementById('email');
-            const serialNumberInput = document.getElementById('serialNumber');
-            const serviceIdInput = document.getElementById('serviceId');
-            
-            // Örnek verilerle başlangıçta formu doldur
-            customerNameInput.value = 'Ahmet Yılmaz';
-            phoneNumberInput.value = '0532 123 45 67';
-            emailInput.value = 'ahmet@firma.com';
-            serialNumberInput.value = 'SN123456789';
-            serviceIdInput.value = 'SRV2025001';
-            
-            // Etiket oluşturma fonksiyonu
-            function generateLabel() {
-                const customerName = customerNameInput.value || 'Boş';
-                const phoneNumber = phoneNumberInput.value || 'Boş';
-                const email = emailInput.value || 'Boş';
-                const serialNumber = serialNumberInput.value || 'Boş';
-                const serviceId = serviceIdInput.value || '000000';
-                
-                // Önizleme etiketi oluştur - KENARA YASLI, BÜYÜK YAZI
-                let previewText = 'TEKNİK DESTEK\n';
-                previewText += `İsim: ${customerName}\n`;
-                previewText += `Tel: ${phoneNumber}\n`;
-                previewText += `E-posta: ${email}\n`;
-                previewText += `Seri No: ${serialNumber}\n`;
-                previewText += `Servis ID: ${serviceId}\n\n`;
-                previewText += `*${serviceId}*`;
-                
-                labelContent.textContent = previewText;
-                
-                // Yazdırma etiketi oluştur
-                createPrintLabel(customerName, phoneNumber, email, serialNumber, serviceId);
-                
-                // ZPL kodu oluştur
-                generateZPL(customerName, phoneNumber, email, serialNumber, serviceId);
-            }
-            
-            // Yazdırma etiketi oluştur - YENİ TASARIM (KENARA YASLI, BÜYÜK YAZI, ÇERÇEVESİZ)
-            function createPrintLabel(customerName, phoneNumber, email, serialNumber, serviceId) {
-                const printHTML = `
-                    <div style="font-family: 'Courier New', Courier, monospace; font-size: 16px; line-height: 1.4; color: #000000; font-weight: 500; padding: 0;">
-                        <div style="font-weight: bold; font-size: 18px; margin-bottom: 3px;">TEKNİK DESTEK</div>
-                        <div><strong>İsim:</strong> ${customerName}</div>
-                        <div><strong>Tel:</strong> ${phoneNumber}</div>
-                        <div><strong>E-posta:</strong> ${email}</div>
-                        <div><strong>Seri No:</strong> ${serialNumber}</div>
-                        <div><strong>Servis ID:</strong> ${serviceId}</div>
-                        <div style="font-size: 20px; font-weight: bold; margin-top: 8px;">*${serviceId}*</div>
-                    </div>
-                `;
-                
-                printLabelContent.innerHTML = printHTML;
-            }
-            
-            // ZPL kodu oluşturma fonksiyonu
-            function generateZPL(customerName, phoneNumber, email, serialNumber, serviceId) {
-                let zplCode = `^XA\n`;
-                zplCode += `^LL160\n`;
-                zplCode += `^FO20,10^A0N,25,25^FD${truncateText(customerName, 30)}^FS\n`;
-                zplCode += `^FO20,40^A0N,20,20^FD${phoneNumber}^FS\n`;
-                zplCode += `^FO20,65^A0N,20,20^FD${truncateText(email, 30)}^FS\n`;
-                zplCode += `^FO20,90^A0N,20,20^FDSN: ${serialNumber}^FS\n`;
-                zplCode += `^FO20,115^A0N,20,20^FDID: ${serviceId}^FS\n`;
-                zplCode += `^FO20,140^B3N,N,40,Y,N^FD${serviceId}^FS\n`;
-                zplCode += `^XZ`;
-                
-                zplOutput.textContent = zplCode;
-            }
-            
-            // Metni belirli uzunlukta kesme fonksiyonu
-            function truncateText(text, maxLength) {
-                if (!text) return '';
-                if (text.length <= maxLength) return text;
-                return text.substring(0, maxLength - 3) + '...';
-            }
-            
-            // ZPL dosyasını indirme fonksiyonu
-            function downloadZPL() {
-                const zplContent = zplOutput.textContent;
-                const blob = new Blob([zplContent], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                
-                const serviceId = serviceIdInput.value || 'etiket';
-                const fileName = `zebra_${serviceId}.zpl`;
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-            
-            // Formu temizleme fonksiyonu
-            function resetForm() {
-                customerNameInput.value = '';
-                phoneNumberInput.value = '';
-                emailInput.value = '';
-                serialNumberInput.value = '';
-                serviceIdInput.value = '';
-                generateLabel(); // Boş etiket oluştur
-            }
-            
-            // Yazdırma işlemi
-            function prepareForPrint() {
-                // Önce etiketi güncelle
-                const customerName = customerNameInput.value || 'Boş';
-                const phoneNumber = phoneNumberInput.value || 'Boş';
-                const email = emailInput.value || 'Boş';
-                const serialNumber = serialNumberInput.value || 'Boş';
-                const serviceId = serviceIdInput.value || '000000';
-                
-                createPrintLabel(customerName, phoneNumber, email, serialNumber, serviceId);
-                
-                // Yazdırma işlemini başlat
-                setTimeout(() => {
-                    window.print();
-                }, 100);
-            }
-            
-            // Olay dinleyicilerini bağla
-            generateBtn.addEventListener('click', generateLabel);
-            resetBtn.addEventListener('click', resetForm);
-            printBtn.addEventListener('click', prepareForPrint);
-            downloadBtn.addEventListener('click', downloadZPL);
-            
-            // Input değişikliklerini dinle
-            customerNameInput.addEventListener('input', generateLabel);
-            phoneNumberInput.addEventListener('input', generateLabel);
-            emailInput.addEventListener('input', generateLabel);
-            serialNumberInput.addEventListener('input', generateLabel);
-            serviceIdInput.addEventListener('input', generateLabel);
-            
-            // Başlangıçta bir etiket oluştur
-            generateLabel();
-        });
-    </script>
+  </section>
+
+  <!-- ============ ÖNİZLEME ============ -->
+  <section class="card">
+    <div class="card-head"><span class="num">2</span><h2>Etiket Önizleme</h2><span class="hint">Baskıyla birebir yerleşim</span></div>
+    <div class="card-body">
+      <div class="stage">
+        <div class="label" id="labelPreview"></div>
+        <div class="dims"><span><i></i>40 × 40 mm</span><span id="dimDots">320 × 320 nokta</span><span>Code 128</span></div>
+      </div>
+
+      <div class="zpl-head">
+        <h3>ZPL Kodu</h3><span class="meta" id="zplMeta"></span>
+        <div class="tools">
+          <button type="button" id="copyBtn" class="btn btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+            Kopyala
+          </button>
+          <button type="button" id="downloadBtn" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
+            ZPL İndir
+          </button>
+        </div>
+      </div>
+      <div class="zpl-output" id="zplOutput"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>makerpazar · Teknik Destek Barkod Etiket Sistemi</span>
+  <span>4 × 4 cm · Zebra uyumlu</span>
+</footer>
+
+<div id="printArea"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ===================== Gömülü logolar ===================== */
+  const LOGO_MONO = 'data:image/png;base64,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';   // termal baskı için siyah-beyaz
+  const LOGO_RATIO = 0.2233;                          // yükseklik / genişlik
+
+  /* ===================== Elemanlar ===================== */
+  const $ = id => document.getElementById(id);
+  const inputs = {
+    customerName: $('customerName'), phoneNumber: $('phoneNumber'), email: $('email'),
+    serialNumber: $('serialNumber'), serviceId: $('serviceId')
+  };
+  const dpiSel = $('dpi'), copiesInp = $('copies'), logoChk = $('showLogo');
+  const preview = $('labelPreview'), zplOutput = $('zplOutput'), printArea = $('printArea');
+  let currentZPL = '';
+
+  /* ===================== Code 128 (B) ===================== */
+  const C128 = ['212222','222122','222221','121223','121322','131222','122213','122312','132212','221213','221312','231212','112232','122132','122231','113222','123122','123221','223211','221132','221231','213212','223112','312131','311222','321122','321221','312212','322112','322211','212123','212321','232121','111323','131123','131321','112313','132113','132311','211313','231113','231311','112133','112331','132131','113123','113321','133121','313121','211331','231131','213113','213311','213131','311123','311321','331121','312113','312311','332111','314111','221411','431111','111224','111422','121124','121421','141122','141221','112214','112412','122114','122411','142112','142211','241211','221114','413111','241112','134111','111242','121142','121241','114212','124112','124211','411212','421112','421211','212141','214121','412121','111143','111341','131141','114113','114311','411113','411311','113141','114131','311141','411131','211412','211214','211232','2331112'];
+
+  function toBarcodeSafe(s){
+    const map = {'İ':'I','ı':'i','Ş':'S','ş':'s','Ğ':'G','ğ':'g','Ü':'U','ü':'u','Ö':'O','ö':'o','Ç':'C','ç':'c'};
+    return s.replace(/[İıŞşĞğÜüÖöÇç]/g, ch => map[ch]).replace(/[^\x20-\x7E]/g, '');
+  }
+  // Barkodun çubuk/boşluk genişliklerini (modül cinsinden) döndürür
+  function code128B(data){
+    const codes = [104];
+    for (const ch of data) codes.push(ch.charCodeAt(0) - 32);
+    let sum = 104;
+    for (let i = 1; i < codes.length; i++) sum += codes[i] * i;
+    codes.push(sum % 103, 106);
+    const widths = [];
+    codes.forEach(c => { for (const w of C128[c]) widths.push(+w); });
+    return widths;
+  }
+  function barcodeSVG(widths, moduleW, height){
+    const total = widths.reduce((a,b)=>a+b,0);
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${total} ${height}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    let x = 0, d = '';
+    widths.forEach((w, i) => { if (i % 2 === 0) d += `M${x} 0h${w}v${height}h-${w}z`; x += w; });
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', d); p.setAttribute('fill', '#000');
+    svg.appendChild(p);
+    return { svg, total };
+  }
+
+  /* ===================== Yerleşim (203 dpi nokta birimi) ===================== */
+  const W = 320, M = 12, INNER = W - 2*M;
+  function layout(withLogo){
+    const L = { logoW: 210 };
+    L.logoH = Math.round(L.logoW * LOGO_RATIO);
+    L.logoX = Math.round((W - L.logoW) / 2); L.logoY = 9;
+    L.bandY = withLogo ? L.logoY + L.logoH + 6 : 12; L.bandH = 22;
+    L.nameY = L.bandY + L.bandH + 9;  L.nameH = 26;
+    L.telY  = L.nameY + 30;           L.rowH  = 19;
+    L.mailY = L.telY + 22; L.snY = L.mailY + 22;
+    L.idH = 26; L.idY = W - 10 - L.idH;
+    L.barY = L.snY + L.rowH + 10; L.barH = L.idY - 5 - L.barY;
+    return L;
+  }
+  // Font 0 (yoğun) için yaklaşık karakter genişliği ~0.52 × yükseklik
+  const maxChars = h => Math.floor(INNER / (h * 0.52));
+
+  /* ===================== Yardımcılar ===================== */
+  function truncateText(text, maxLength){
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 1) + '…';
+  }
+  function readValues(){
+    const v = {};
+    for (const k in inputs) v[k] = inputs[k].value.trim();
+    v.barcodeData = toBarcodeSafe(v.serviceId) || '000000';
+    return v;
+  }
+  function toast(msg){
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  function el(tag, cls, css, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (css) Object.assign(e.style, css);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const u = n => `calc(${n} * var(--u))`;
+
+  function rows(v, L){
+    return [
+      { y:L.nameY, h:L.nameH, text: v.customerName, ph:'İsim Soyisim' },
+      { y:L.telY,  h:L.rowH,  text: v.phoneNumber ? 'Tel: ' + v.phoneNumber : '', ph:'Tel: —' },
+      { y:L.mailY, h:L.rowH,  text: v.email, ph:'E-posta: —' },
+      { y:L.snY,   h:L.rowH,  text: v.serialNumber ? 'S/N: ' + v.serialNumber : '', ph:'S/N: —' }
+    ].map(r => ({ ...r, text: truncateText(r.text, maxChars(r.h)) }));
+  }
+  function barcodeFit(widths){
+    const total = widths.reduce((a,b)=>a+b,0);
+    const m = Math.max(1, Math.min(3, Math.floor(INNER / total)));
+    return { m, total, width: total * m, x: Math.round((W - total * m) / 2), fits: total <= INNER };
+  }
+
+  /* ===================== Etiket DOM'u (önizleme + baskı ortak) ===================== */
+  function buildLabel(v){
+    const withLogo = logoChk.checked;
+    const L = layout(withLogo);
+    const root = el('div', 'label');
+
+    if (withLogo){
+      const img = el('img', 'l-logo', { left:u(L.logoX), top:u(L.logoY), width:u(L.logoW), height:u(L.logoH) });
+      img.src = LOGO_MONO; img.alt = 'makerpazar';
+      root.appendChild(img);
+    }
+    root.appendChild(el('div', 'l-band', { top:u(L.bandY), height:u(L.bandH), fontSize:u(17), lineHeight:u(L.bandH) }, 'TEKNİK DESTEK'));
+
+    rows(v, L).forEach(r => {
+      root.appendChild(el('div', 'l-txt' + (r.text ? '' : ' l-empty'),
+        { top:u(r.y), height:u(r.h), fontSize:u(r.h) }, r.text || r.ph));
+    });
+
+    const widths = code128B(v.barcodeData);
+    const fit = barcodeFit(widths);
+    const { svg } = barcodeSVG(widths, fit.m, 100);
+    Object.assign(svg.style, { left:u(fit.x), top:u(L.barY), width:u(fit.width), height:u(L.barH), position:'absolute' });
+    svg.setAttribute('class', 'l-bar');
+    root.appendChild(svg);
+
+    root.appendChild(el('div', 'l-id' + (v.serviceId ? '' : ' l-empty'),
+      { top:u(L.idY), height:u(L.idH), fontSize:u(L.idH) }, truncateText(v.serviceId || '000000', maxChars(L.idH))));
+
+    return { root, fit };
+  }
+
+  /* ===================== Logo → ZPL ^GFA ===================== */
+  const logoImg = new Image();
+  const gfaCache = {};
+  let logoReady = false;
+  logoImg.onload = () => { logoReady = true; generateLabel(); };
+  logoImg.src = LOGO_MONO;
+
+  function logoGFA(w, h){
+    const key = w + 'x' + h;
+    if (gfaCache[key]) return gfaCache[key];
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(logoImg, 0, 0, w, h);
+    const px = ctx.getImageData(0, 0, w, h).data;
+    const bpr = Math.ceil(w / 8);
+    let hex = '';
+    for (let y = 0; y < h; y++){
+      for (let b = 0; b < bpr; b++){
+        let byte = 0;
+        for (let bit = 0; bit < 8; bit++){
+          const x = b * 8 + bit;
+          if (x < w){
+            const i = (y * w + x) * 4;
+            const lum = 0.299*px[i] + 0.587*px[i+1] + 0.114*px[i+2];
+            if (lum < 128) byte |= (0x80 >> bit);
+          }
+        }
+        hex += byte.toString(16).padStart(2, '0').toUpperCase();
+      }
+    }
+    return (gfaCache[key] = { bytes: bpr * h, bpr, hex });
+  }
+
+  /* ===================== ZPL ===================== */
+  function zplEscape(s){ // ^FH_ ile kontrol karakterlerini güvenle yaz
+    return s.replace(/_/g,'_5F').replace(/\^/g,'_5E').replace(/~/g,'_7E');
+  }
+  function generateZPL(v){
+    const dpi = +dpiSel.value;
+    const k = dpi === 300 ? 12/8 : 1;           // 300 dpi ölçek katsayısı
+    const s = n => Math.round(n * k);
+    const withLogo = logoChk.checked;
+    const L = layout(withLogo);
+    const copies = Math.min(99, Math.max(1, parseInt(copiesInp.value, 10) || 1));
+
+    const z = [];
+    z.push('^XA', '^CI28', `^PW${s(W)}`, `^LL${s(W)}`, '^LH0,0', '^PON', '^MNY');
+
+    if (withLogo && logoReady){
+      const g = logoGFA(s(L.logoW), s(L.logoH));
+      z.push(`^FO${s(L.logoX)},${s(L.logoY)}^GFA,${g.bytes},${g.bytes},${g.bpr},${g.hex}^FS`);
+    }
+    z.push(`^FO${s(M)},${s(L.bandY)}^GB${s(INNER)},${s(L.bandH)},${s(L.bandH)},B,0^FS`);
+    z.push(`^FO${s(M)},${s(L.bandY + 3)}^A0N,${s(17)},${s(17)}^FB${s(INNER)},1,0,C^FR^FDTEKNİK DESTEK^FS`);
+
+    rows(v, L).forEach(r => {
+      if (r.text) z.push(`^FO${s(M)},${s(r.y)}^A0N,${s(r.h)},${s(r.h)}^FB${s(INNER)},1,0,L^FH_^FD${zplEscape(r.text)}^FS`);
+    });
+
+    const widths = code128B(v.barcodeData);
+    const fit = barcodeFit(widths);
+    const mod = Math.max(1, Math.floor(s(INNER) / fit.total));
+    const bx = Math.round((s(W) - fit.total * mod) / 2);
+    z.push(`^BY${mod},3,${s(L.barH)}`);
+    z.push(`^FO${bx},${s(L.barY)}^BCN,${s(L.barH)},N,N,N,N^FD${v.barcodeData.replace(/[\^~]/g,'')}^FS`);
+    z.push(`^FO${s(M)},${s(L.idY)}^A0N,${s(L.idH)},${s(L.idH)}^FB${s(INNER)},1,0,C^FH_^FD${zplEscape(truncateText(v.serviceId || '000000', maxChars(L.idH)))}^FS`);
+
+    z.push(`^PQ${copies},0,1,Y`, '^XZ');
+    return { code: z.join('\n'), fit, dpi, dots: s(W) };
+  }
+
+  function renderZPL(code){
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const html = code.split('\n').map(line => {
+      line = line.replace(/(\^GFA,\d+,\d+,\d+,)([0-9A-F]+)/, (m, head, hex) => head + '\u0000' + (hex.length/2) + '\u0000');
+      let out = esc(line)
+        .replace(/\^FD(.*?)(?=\^FS)/g, (m, d) => '^FD\u0001' + d + '\u0002')
+        .replace(/(\^[A-Z][A-Z0-9@]?)/g, '<span class="c">$1</span>');
+      return out
+        .replace(/\u0001/g, '<span class="d">').replace(/\u0002/g, '</span>')
+        .replace(/\u0000(\d+)\u0000/, '<span class="g">‹logo grafiği · $1 bayt›</span>');
+    }).join('\n');
+    zplOutput.innerHTML = html;
+  }
+
+  /* ===================== Ana akış ===================== */
+  let previewNode = preview;
+
+  function generateLabel(){
+    const v = readValues();
+    const { root, fit } = buildLabel(v);
+    root.id = 'labelPreview';
+    previewNode.replaceWith(root);
+    previewNode = root;
+
+    const z = generateZPL(v);
+    currentZPL = z.code;
+    renderZPL(z.code);
+    $('zplMeta').textContent = `${z.dpi} dpi · ${z.code.length.toLocaleString('tr-TR')} karakter`;
+    $('chipText').textContent = `${z.dpi} dpi · ${z.dots} × ${z.dots} nokta`;
+    $('dimDots').textContent = `${z.dots} × ${z.dots} nokta`;
+
+    // Servis ID uyarıları
+    const warn = $('idWarn'), msgs = [];
+    if (v.serviceId && toBarcodeSafe(v.serviceId) !== v.serviceId) msgs.push('Barkodda Türkçe/özel karakterler sadeleştirildi: ' + v.barcodeData + '.');
+    if (!fit.fits) msgs.push('Servis ID çok uzun; barkod 4 cm\'ye sığmayabilir (en fazla ~20 karakter önerilir).');
+    warn.textContent = msgs.join(' ');
+    warn.classList.toggle('show', msgs.length > 0);
+
+    // Karakter sayaçları (etikete sığan uzunluk)
+    const L = layout(logoChk.checked);
+    const limits = { customerName: maxChars(L.nameH), phoneNumber: maxChars(L.rowH) - 5, email: maxChars(L.rowH), serialNumber: maxChars(L.rowH) - 5 };
+    document.querySelectorAll('.count').forEach(c => {
+      const k = c.dataset.for, len = inputs[k].value.trim().length;
+      c.textContent = `${len}/${limits[k]}`;
+      c.classList.toggle('over', len > limits[k]);
+    });
+  }
+
+  function prepareForPrint(){
+    generateLabel();
+    const v = readValues();
+    const copies = Math.min(99, Math.max(1, parseInt(copiesInp.value, 10) || 1));
+    printArea.textContent = '';
+    for (let i = 0; i < copies; i++) printArea.appendChild(buildLabel(v).root);
+    setTimeout(() => window.print(), 100);
+  }
+
+  function downloadZPL(){
+    generateLabel();
+    const blob = new Blob([currentZPL], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const id = (inputs.serviceId.value.trim() || 'etiket').replace(/[^\w.-]+/g, '_');
+    const a = document.createElement('a');
+    a.href = url; a.download = `zebra_${id}.zpl`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('ZPL dosyası indirildi');
+  }
+
+  async function copyZPL(){
+    try { await navigator.clipboard.writeText(currentZPL); toast('ZPL panoya kopyalandı'); }
+    catch(e){
+      const ta = el('textarea'); ta.value = currentZPL; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('ZPL panoya kopyalandı'); } catch(_) { toast('Kopyalanamadı'); }
+      ta.remove();
+    }
+  }
+
+  function resetForm(){
+    for (const k in inputs) inputs[k].value = '';
+    copiesInp.value = 1;
+    generateLabel();
+    inputs.customerName.focus();
+    toast('Form temizlendi');
+  }
+
+  // Sıradaki Servis ID: SRV + yıl + 3 hane (tarayıcıda sayaç tutulur)
+  function nextServiceId(){
+    const year = new Date().getFullYear();
+    const key = 'mp_srv_seq_' + year;
+    let n = 0;
+    try { n = parseInt(localStorage.getItem(key), 10) || 0; } catch(e){}
+    const m = /^SRV(\d{4})(\d+)$/i.exec(inputs.serviceId.value.trim());
+    if (m && +m[1] === year) n = Math.max(n, +m[2]);
+    n += 1;
+    try { localStorage.setItem(key, String(n)); } catch(e){}
+    inputs.serviceId.value = `SRV${year}${String(n).padStart(3, '0')}`;
+    generateLabel();
+  }
+
+  // Ayarları hatırla
+  function saveSettings(){
+    try { localStorage.setItem('mp_label_settings', JSON.stringify({ dpi: dpiSel.value, logo: logoChk.checked })); } catch(e){}
+  }
+  try {
+    const st = JSON.parse(localStorage.getItem('mp_label_settings') || 'null');
+    if (st){ dpiSel.value = st.dpi; logoChk.checked = !!st.logo; }
+  } catch(e){}
+
+  /* ===================== Olaylar ===================== */
+  // Örnek verilerle başlangıç
+  inputs.customerName.value = 'Ahmet Yılmaz';
+  inputs.phoneNumber.value = '0532 123 45 67';
+  inputs.email.value = 'ahmet@firma.com';
+  inputs.serialNumber.value = 'SN123456789';
+  inputs.serviceId.value = 'SRV2025001';
+
+  $('generateBtn').addEventListener('click', () => { generateLabel(); toast('Etiket oluşturuldu'); });
+  $('resetBtn').addEventListener('click', resetForm);
+  $('printBtn').addEventListener('click', prepareForPrint);
+  $('downloadBtn').addEventListener('click', downloadZPL);
+  $('copyBtn').addEventListener('click', copyZPL);
+  $('newIdBtn').addEventListener('click', nextServiceId);
+  for (const k in inputs) inputs[k].addEventListener('input', generateLabel);
+  copiesInp.addEventListener('input', generateLabel);
+  dpiSel.addEventListener('change', () => { saveSettings(); generateLabel(); });
+  logoChk.addEventListener('change', () => { saveSettings(); generateLabel(); });
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); prepareForPrint(); }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')){ e.preventDefault(); prepareForPrint(); }
+  });
+  window.addEventListener('afterprint', () => { printArea.textContent = ''; });
+
+  generateLabel();
+})();
+</script>
 </body>
 </html>
