@@ -77,7 +77,7 @@
   .warn-text{display:none;margin-top:6px;font-size:.75rem;color:var(--warn)}
   .warn-text.show{display:block}
 
-  .settings{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:14px;border:1px dashed #D5CFEA;border-radius:12px;background:#FCFBFF;margin:6px 0 18px}
+  .settings{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;border:1px dashed #D5CFEA;border-radius:12px;background:#FCFBFF;margin:6px 0 18px}
   .settings .field{margin:0}
   .settings select,.settings input{padding-left:12px}
   .switch{display:flex;align-items:center;gap:10px;height:44px;cursor:pointer;user-select:none;font-size:.88rem;font-weight:500;color:var(--ink-2)}
@@ -175,16 +175,16 @@
   }
 
   /* ---------- YAZDIRMA: yalnızca 40 × 40 mm etiket ---------- */
-  @page{size:40mm 40mm;margin:0}
   @media print{
     html,body{background:#fff !important;background-image:none !important;margin:0 !important;padding:0 !important}
     body > *:not(#printArea){display:none !important}
     #printArea{display:block !important}
-    #printArea .label{--u:calc(40mm / 320);border-radius:0;box-shadow:none;animation:none;page-break-after:always;break-after:page}
+    #printArea .label{--u:calc(var(--label-mm, 40mm) / 320);border-radius:0;box-shadow:none;animation:none;page-break-after:always;break-after:page}
     #printArea .label:last-child{page-break-after:auto;break-after:auto}
     .label .l-empty{color:#000}
   }
 </style>
+<style id="pageSize">@page{size:100mm 100mm;margin:0}</style>
 </head>
 <body>
 
@@ -194,7 +194,7 @@
     <span class="divider"></span>
     <div>
       <h1>Teknik Destek · Servis Etiketi</h1>
-      <div class="sub">4 × 4 cm termal etiket · Zebra ZPL</div>
+      <div class="sub">4 × 4 / 10 × 10 cm termal etiket · Zebra ZPL</div>
     </div>
     <span class="chip"><span class="dot"></span><span id="chipText">203 dpi · 320 × 320 nokta</span></span>
   </div>
@@ -246,6 +246,13 @@
 
         <div class="settings">
           <div class="field">
+            <label for="labelSize">Etiket boyutu</label>
+            <select id="labelSize">
+              <option value="100">10 × 10 cm</option>
+              <option value="40">4 × 4 cm</option>
+            </select>
+          </div>
+          <div class="field">
             <label for="dpi">Yazıcı çözünürlüğü</label>
             <select id="dpi">
               <option value="203">203 dpi</option>
@@ -282,7 +289,7 @@
         <b>Kullanım</b>
         <ul>
           <li>Bilgiler yazdıkça etiket önizlemesi ve ZPL kodu anında güncellenir.</li>
-          <li><b style="display:inline;font-family:inherit">Yazdır</b> tarayıcıdan 40 × 40 mm sayfa olarak basar; yazıcı sürücüsünde kağıt boyutunu 4 × 4 cm seçin, ölçek %100.</li>
+          <li><b style="display:inline;font-family:inherit">Yazdır</b> tarayıcıdan seçili boyutta (4 × 4 veya 10 × 10 cm) sayfa olarak basar; yazıcı sürücüsünde aynı kağıt boyutunu seçin, ölçek %100.</li>
           <li><b style="display:inline;font-family:inherit">ZPL İndir</b> dosyası doğrudan Zebra'ya gönderilebilir (logo dahil, Türkçe karakter desteği ^CI28).</li>
           <li>Servis ID, Code 128 barkod olarak basılır; okuyucu ile okutulabilir.</li>
         </ul>
@@ -296,7 +303,7 @@
     <div class="card-body">
       <div class="stage">
         <div class="label" id="labelPreview"></div>
-        <div class="dims"><span><i></i>40 × 40 mm</span><span id="dimDots">320 × 320 nokta</span><span>Code 128</span></div>
+        <div class="dims"><span><i></i><span id="dimMm">100 × 100 mm</span></span><span id="dimDots">320 × 320 nokta</span><span>Code 128</span></div>
       </div>
 
       <div class="zpl-head">
@@ -319,7 +326,7 @@
 
 <footer>
   <span>makerpazar · Teknik Destek Barkod Etiket Sistemi</span>
-  <span>4 × 4 cm · Zebra uyumlu</span>
+  <span>4 × 4 / 10 × 10 cm · Zebra uyumlu</span>
 </footer>
 
 <div id="printArea"></div>
@@ -339,7 +346,21 @@
     customerName: $('customerName'), phoneNumber: $('phoneNumber'), email: $('email'),
     serialNumber: $('serialNumber'), serviceId: $('serviceId')
   };
-  const dpiSel = $('dpi'), copiesInp = $('copies'), logoChk = $('showLogo');
+  const dpiSel = $('dpi'), copiesInp = $('copies'), logoChk = $('showLogo'), sizeSel = $('labelSize');
+
+  /* Etiket boyutu → yazıcı noktası. Yerleşim 320 birimlik tasarım alanında yapılır ve k ile ölçeklenir. */
+  function geom(){
+    const mm = +sizeSel.value, dpi = +dpiSel.value;
+    const dpmm = dpi === 300 ? 11.811 : 8;            // nokta/mm
+    const dots = Math.round(mm * dpmm);               // 40mm: 320/472 · 100mm: 800/1181
+    return { mm, dpi, dots, k: dots / 320 };
+  }
+  function applyPageSize(){
+    const mm = +sizeSel.value;
+    $('pageSize').textContent = `@page{size:${mm}mm ${mm}mm;margin:0}`;
+    document.documentElement.style.setProperty('--label-mm', mm + 'mm');
+    $('dimMm').textContent = `${mm} × ${mm} mm`;
+  }
   const preview = $('labelPreview'), zplOutput = $('zplOutput'), printArea = $('printArea');
   let currentZPL = '';
 
@@ -425,10 +446,14 @@
       { y:L.snY,   h:L.rowH,  text: v.serialNumber ? 'S/N: ' + v.serialNumber : '', ph:'S/N: —' }
     ].map(r => ({ ...r, text: truncateText(r.text, maxChars(r.h)) }));
   }
+  // Barkod modül genişliği gerçek yazıcı noktası üzerinden hesaplanır; önizleme ve ZPL aynı sonucu kullanır
   function barcodeFit(widths){
+    const G = geom();
     const total = widths.reduce((a,b)=>a+b,0);
-    const m = Math.max(1, Math.min(3, Math.floor(INNER / total)));
-    return { m, total, width: total * m, x: Math.round((W - total * m) / 2), fits: total <= INNER };
+    const innerD = Math.round(INNER * G.k);
+    const mod = Math.max(1, Math.floor(innerD / total));   // kenar boşlukları içinde en geniş tam-nokta modül
+    const wD = total * mod, xD = Math.round((G.dots - wD) / 2);
+    return { mod, total, wD, xD, width: wD / G.k, x: xD / G.k, fits: total <= innerD };
   }
 
   /* ===================== Etiket DOM'u (önizleme + baskı ortak) ===================== */
@@ -451,7 +476,7 @@
 
     const widths = code128B(v.barcodeData);
     const fit = barcodeFit(widths);
-    const { svg } = barcodeSVG(widths, fit.m, 100);
+    const { svg } = barcodeSVG(widths, fit.mod, 100);
     Object.assign(svg.style, { left:u(fit.x), top:u(L.barY), width:u(fit.width), height:u(L.barH), position:'absolute' });
     svg.setAttribute('class', 'l-bar');
     root.appendChild(svg);
@@ -502,15 +527,14 @@
     return s.replace(/_/g,'_5F').replace(/\^/g,'_5E').replace(/~/g,'_7E');
   }
   function generateZPL(v){
-    const dpi = +dpiSel.value;
-    const k = dpi === 300 ? 12/8 : 1;           // 300 dpi ölçek katsayısı
-    const s = n => Math.round(n * k);
+    const G = geom(), dpi = G.dpi;
+    const s = n => Math.round(n * G.k);
     const withLogo = logoChk.checked;
     const L = layout(withLogo);
     const copies = Math.min(99, Math.max(1, parseInt(copiesInp.value, 10) || 1));
 
     const z = [];
-    z.push('^XA', '^CI28', `^PW${s(W)}`, `^LL${s(W)}`, '^LH0,0', '^PON', '^MNY');
+    z.push('^XA', '^CI28', `^PW${G.dots}`, `^LL${G.dots}`, '^LH0,0', '^PON', '^MNY');
 
     if (withLogo && logoReady){
       const g = logoGFA(s(L.logoW), s(L.logoH));
@@ -525,14 +549,12 @@
 
     const widths = code128B(v.barcodeData);
     const fit = barcodeFit(widths);
-    const mod = Math.max(1, Math.floor(s(INNER) / fit.total));
-    const bx = Math.round((s(W) - fit.total * mod) / 2);
-    z.push(`^BY${mod},3,${s(L.barH)}`);
-    z.push(`^FO${bx},${s(L.barY)}^BCN,${s(L.barH)},N,N,N,N^FD${v.barcodeData.replace(/[\^~]/g,'')}^FS`);
+    z.push(`^BY${fit.mod},3,${s(L.barH)}`);
+    z.push(`^FO${fit.xD},${s(L.barY)}^BCN,${s(L.barH)},N,N,N,N^FD${v.barcodeData.replace(/[\^~]/g,'')}^FS`);
     z.push(`^FO${s(M)},${s(L.idY)}^A0N,${s(L.idH)},${s(L.idH)}^FB${s(INNER)},1,0,C^FH_^FD${zplEscape(truncateText(v.serviceId || '000000', maxChars(L.idH)))}^FS`);
 
     z.push(`^PQ${copies},0,1,Y`, '^XZ');
-    return { code: z.join('\n'), fit, dpi, dots: s(W) };
+    return { code: z.join('\n'), fit, dpi, dots: G.dots, mm: G.mm };
   }
 
   function renderZPL(code){
@@ -562,7 +584,7 @@
     const z = generateZPL(v);
     currentZPL = z.code;
     renderZPL(z.code);
-    $('zplMeta').textContent = `${z.dpi} dpi · ${z.code.length.toLocaleString('tr-TR')} karakter`;
+    $('zplMeta').textContent = `${z.mm}×${z.mm} mm · ${z.dpi} dpi · ${z.code.length.toLocaleString('tr-TR')} karakter`;
     $('chipText').textContent = `${z.dpi} dpi · ${z.dots} × ${z.dots} nokta`;
     $('dimDots').textContent = `${z.dots} × ${z.dots} nokta`;
 
@@ -637,11 +659,11 @@
 
   // Ayarları hatırla
   function saveSettings(){
-    try { localStorage.setItem('mp_label_settings', JSON.stringify({ dpi: dpiSel.value, logo: logoChk.checked })); } catch(e){}
+    try { localStorage.setItem('mp_label_settings', JSON.stringify({ dpi: dpiSel.value, logo: logoChk.checked, size: sizeSel.value })); } catch(e){}
   }
   try {
     const st = JSON.parse(localStorage.getItem('mp_label_settings') || 'null');
-    if (st){ dpiSel.value = st.dpi; logoChk.checked = !!st.logo; }
+    if (st){ dpiSel.value = st.dpi; logoChk.checked = !!st.logo; if (st.size) sizeSel.value = st.size; }
   } catch(e){}
 
   /* ===================== Olaylar ===================== */
@@ -661,6 +683,8 @@
   for (const k in inputs) inputs[k].addEventListener('input', generateLabel);
   copiesInp.addEventListener('input', generateLabel);
   dpiSel.addEventListener('change', () => { saveSettings(); generateLabel(); });
+  sizeSel.addEventListener('change', () => { saveSettings(); applyPageSize(); generateLabel(); });
+  applyPageSize();
   logoChk.addEventListener('change', () => { saveSettings(); generateLabel(); });
 
   document.addEventListener('keydown', e => {
